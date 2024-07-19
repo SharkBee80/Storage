@@ -9,7 +9,7 @@ from mcstatus import JavaServer
 import threading
 from queue import Queue, Empty
 
-O_server = "*****************"  # 默认服务器地址:端口
+O_server = "**********" # 服务器地址
 player_info = "当前没有在线玩家。"
 
 
@@ -33,7 +33,7 @@ def input_with_timeout(note, timeout, default):
 
 # 获取服务器状态
 while True:
-    prompt = "输入Minecraft服务器地址 : (输入quit退出)\n默认服务器:******************* (回车)\n##:"
+    prompt = "输入Minecraft服务器地址 : (输入quit退出)\n默认服务器:********** (回车)\n##:"
     try:
         server = input_with_timeout(prompt, 10, O_server)
         if server == "":
@@ -91,7 +91,7 @@ def update_server_info():
             status = server.status()  # 每次循环获取最新的服务器状态
             server_info = Status()
             players_info = Players()
-            error = ""
+            error = "\n⭐"
             time.sleep(5)  # 每2.5秒更新一次 server_info 和 players_info
         except Exception as e:
             server_info = f"服务器版本: {status.version.name}\n服务器地址: {server.address.host.upper()}\n在线人数: */{status.players.max}"
@@ -113,7 +113,7 @@ def update_delay_info():
 
 
 if __name__ == '__main__':
-    error = ""
+    error = "\n⭐"
     server_info = Status()
     players_info = Players()
     delay_info = Delay()
