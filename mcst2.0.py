@@ -1,5 +1,7 @@
 """
-2.0更新,获取服务器状态和延迟的刷新时间分开
+2.0更新
+获取服务器状态和延迟的刷新时间分开
+修复bug
 """
 
 import sys
@@ -9,7 +11,7 @@ from mcstatus import JavaServer
 import threading
 from queue import Queue, Empty
 
-O_server = "**********" # 服务器地址
+O_server = "**********"  # 服务器地址address:port
 player_info = "当前没有在线玩家。"
 
 
@@ -34,6 +36,7 @@ def input_with_timeout(note, timeout, default):
 # 获取服务器状态
 while True:
     prompt = "输入Minecraft服务器地址 : (输入quit退出)\n默认服务器:********** (回车)\n##:"
+    # noinspection PyBroadException
     try:
         server = input_with_timeout(prompt, 10, O_server)
         if server == "":
@@ -42,7 +45,7 @@ while True:
             sys.exit(0)
         server = JavaServer.lookup(f"{server}")
         status = server.status()
-    except Exception as e:
+    except Exception:
         print("请检查Minecraft服务器地址")
     else:
         break
@@ -70,10 +73,12 @@ def Players():
         player_list.sort(reverse=False)
 
         for player in player_list:
-            if player == "Anonymous Player" and player_counts[player] > 1:
+            if player == "Anonymous Player" and player_counts[player] >= 2:
                 player_info += f"\n  {player} ✕ {player_counts[player]}"
             else:
                 player_info += f"\n  {player}"
+    else:
+        player_info = "当前没有在线玩家。"
     return player_info
 
 
@@ -87,13 +92,14 @@ def Delay():
 def update_server_info():
     global status, server_info, players_info, error
     while True:
+        # noinspection PyBroadException
         try:
             status = server.status()  # 每次循环获取最新的服务器状态
             server_info = Status()
             players_info = Players()
             error = "\n⭐"
             time.sleep(5)  # 每2.5秒更新一次 server_info 和 players_info
-        except Exception as e:
+        except Exception:
             server_info = f"服务器版本: {status.version.name}\n服务器地址: {server.address.host.upper()}\n在线人数: */{status.players.max}"
             players_info = "在线玩家:\n  ***"
             error = "\nunknow error"
@@ -101,13 +107,14 @@ def update_server_info():
 
 
 # 更新延迟
+# noinspection PyBroadException
 def update_delay_info():
     global delay_info
     while True:
         try:
             delay_info = Delay()
             time.sleep(1)  # 每5秒更新一次 delay_info
-        except Exception as e:
+        except Exception:
             delay_info = "服务器延迟: *** ms"
             time.sleep(5)
 
@@ -128,6 +135,7 @@ if __name__ == '__main__':
     delay_thread.daemon = True
     delay_thread.start()
     while True:
+        # noinspection PyBroadException
         try:
             # 使用 ANSI 控制码将光标移动到行首并清除屏幕
             print("\033[H\033[J", end='')
